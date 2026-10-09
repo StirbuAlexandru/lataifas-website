@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔔 Alerte Comenzi Restaurant</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        .status {
+            font-size: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .status.active {
+            background: #10b981;
+            color: white;
+        }
+        .status.inactive {
+            background: #ef4444;
+            color: white;
+        }
+        .info {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .info p {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .info strong {
+            color: #667eea;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+        .volume-control {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .volume-control label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .volume-control input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        .volume-control select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+        .last-check {
+            font-size: 14px;
+            color: #666;
+            margin-top: 20px;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            color: #333;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border: 4px solid #10b981;
+            font-size: 24px;
+            font-weight: bold;
+            animation: bounce 1s infinite;
+            z-index: 1000;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Sistem Alertă Comenzi</h1>
+        
+        <div id="status" class="status inactive">
+            ⏸️ Oprit - Apasă PORNEȘTE pentru a activa alertele
+        </div>
+        
+        <div class="info">
+            <p><strong>Comenzi în așteptare:</strong> <span id="orderCount">-</span></p>
+            <p><strong>Verificare automată:</strong> <span>La 10 secunde</span></p>
+            <p><strong>Durată alertă:</strong> <span>~5 secunde</span></p>
+            <p><strong>URL Server:</strong> <span id="serverUrl">-</span></p>
+        </div>
+        
+        <div class="volume-control">
+            <label>
+                <span>🎵 Tip alarmă</span>
+            </label>
+            <select id="soundSelect" onchange="updateSoundType(this.value)">
+                <option value="classic">🔔 Clasic - Beep</option>
+                <option value="bell">🛎️ Clopoțel</option>
+                <option value="dingdong">🎐 Ding-Dong</option>
+                <option value="soft">🔈 Sonerie discretă</option>
+                <option value="xylophone">🎶 Xilofon</option>
+                <option value="intense">🚨 Alarmă intensă</option>
+                <option value="siren">📢 Sirenă</option>
+                <option value="constant">📻 Sunet constant</option>
+                <option value="drone">🌊 Zumzet continuu</option>
+            </select>
+        </div>
+
+        <div class="volume-control">
+            <label>
+                <span>🔊 Volum alertă</span>
+                <span id="volumeLabel">150%</span>
+            </label>
+            <input type="range" id="volumeSlider" min="0" max="200" step="10" value="150" oninput="updateVolume(this.value)">
+        </div>
+
+        <button id="toggleBtn" onclick="toggleMonitoring()">▶️ PORNEȘTE MONITORIZAREA</button>
+        <button onclick="testSound()">🔊 Testează Sunet</button>
+        
+        <div class="last-check">
+            Ultima verificare: <span id="lastCheck">Niciodată</span>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAȚIE - URL-ul serverului de producție
+        const SERVER_URL = 'https://www.lataifas-suceava.ro';
+        const CHECK_INTERVAL = 10000; // 10 secunde
+        const BEEP_COUNT = 5; // 5 beep-uri
+        
+        let isMonitoring = false;
+        let lastOrderCount = null; // Schimbat de la 0 la null pentru a detecta prima verificare
+        let intervalId = null;
+        let audioContext = null;
+
+        // Volum alertă: 100% = volum normal, poate merge până la 200% (mai tare)
+        // Se salvează în localStorage ca să rămână setat data viitoare când se deschide pagina.
+        let alertVolume = parseInt(localStorage.getItem('alertVolume') || '150', 10) / 100;
+        document.getElementById('volumeSlider').value = alertVolume * 100;
+        document.getElementById('volumeLabel').textContent = `${Math.round(alertVolume * 100)}%`;
+
+        function updateVolume(percent) {
+            alertVolume = percent / 100;
+            document.getElementById('volumeLabel').textContent = `${percent}%`;
+            localStorage.setItem('alertVolume', percent);
+        }
+
+        // Tip de alarmă: fiecare pattern e o secvență de note (frecvență, formă de undă,
+        // durată, moment de start relativ) redate o dată; repeatMs e pauza până la repetare.
+        const SOUND_PATTERNS = {
+            classic: {
+                repeatMs: 1200,
+                notes: [{ freq: 800, type: 'sine', dur: 0.5, offset: 0 }],
+            },
+            bell: {
+                repeatMs: 1800,
+                notes: [
+                    { freq: 1046.5, type: 'sine', dur: 1.1, offset: 0 },
+                    { freq: 1568.0, type: 'sine', dur: 0.9, offset: 0.03 },
+                ],
+            },
+            dingdong: {
+                repeatMs: 1700,
+                notes: [
+                    { freq: 880.0, type: 'sine', dur: 0.4, offset: 0 },
+                    { freq: 659.25, type: 'sine', dur: 0.6, offset: 0.42 },
+                ],
+            },
+            soft: {
+                repeatMs: 1000,
+                notes: [{ freq: 600, type: 'triangle', dur: 0.35, offset: 0 }],
+            },
+            xylophone: {
+                repeatMs: 1500,
+                notes: [
+                    { freq: 523.25, type: 'triangle', dur: 0.25, offset: 0 },
+                    { freq: 659.25, type: 'triangle', dur: 0.25, offset: 0.18 },
+                    { freq: 783.99, type: 'triangle', dur: 0.4, offset: 0.36 },
+                ],
+            },
+            // Mai puternice / mai bruște, pentru cine vrea să tresară puțin:
+            intense: {
+                repeatMs: 700,
+                notes: [
+                    { freq: 880, type: 'square', dur: 0.35, offset: 0 },
+                    { freq: 1100, type: 'sine', dur: 0.35, offset: 0 },
+                ],
+            },
+            siren: {
+                repeatMs: 900,
+                notes: [
+                    { freq: 600, type: 'sawtooth', dur: 0.45, offset: 0, sweepTo: 1200 },
+                    { freq: 1200, type: 'sawtooth', dur: 0.45, offset: 0.45, sweepTo: 600 },
+                ],
+            },
+            // Sunete susținute, fără pauze - țin o notă continuă în loc să repete beep-uri.
+            constant: {
+                continuous: true,
+                totalDur: 5,
+                notes: [{ freq: 750, type: 'sine' }],
+            },
+            drone: {
+                continuous: true,
+                totalDur: 5,
+                notes: [
+                    { freq: 400, type: 'sawtooth' },
+                    { freq: 404, type: 'sawtooth' }, // ușor dezacordat față de 400Hz -> vibrație/bătăi, gen alarmă de incendiu
+                ],
+            },
+        };
+
+        let alertSound = localStorage.getItem('alertSound') || 'classic';
+        document.getElementById('soundSelect').value = alertSound;
+
+        function updateSoundType(value) {
+            alertSound = value;
+            localStorage.setItem('alertSound', value);
+        }
+
+        // Afișează URL-ul serverului
+        document.getElementById('serverUrl').textContent = SERVER_URL;
+        
+        // Inițializează context audio (pentru a genera sunetul)
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        // Redă o singură notă folosind Web Audio API. `note.sweepTo`, dacă e prezent,
+        // face frecvența să alunece de la note.freq la sweepTo (efect de sirenă).
+        function playNote(note, startTime) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.type = note.type;
+            oscillator.frequency.setValueAtTime(note.freq, startTime);
+            if (note.sweepTo) {
+                oscillator.frequency.linearRampToValueAtTime(note.sweepTo, startTime + note.dur);
+            }
+
+            // exponentialRampToValueAtTime cere o valoare de start > 0, altfel aruncă eroare
+            // (relevant dacă volumul e tras complet la 0%).
+            const gainStart = Math.max(alertVolume, 0.0001);
+            gainNode.gain.setValueAtTime(gainStart, startTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + note.dur);
+
+            oscillator.start(startTime);
+            oscillator.stop(startTime + note.dur);
+        }
+
+        // Redă o dată tiparul de sunet ales de utilizator; întoarce pauza până la repetare.
+        function playPattern() {
+            initAudio();
+
+            // Browserele suspendă AudioContext-ul dacă nu a fost pornit direct
+            // dintr-un gest al utilizatorului (click); reactivează-l dacă e cazul.
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            const pattern = SOUND_PATTERNS[alertSound] || SOUND_PATTERNS.classic;
+            pattern.notes.forEach((note) => {
+                playNote(note, audioContext.currentTime + note.offset);
+            });
+
+            return pattern.repeatMs;
+        }
+
+        // Redă un ton susținut (fără pauze) pe toată durata `pattern.totalDur`.
+        function playContinuousPattern(pattern) {
+            initAudio();
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            const startTime = audioContext.currentTime;
+            const gainStart = Math.max(alertVolume, 0.0001);
+            const attack = 0.05;
+            const release = 0.2;
+
+            pattern.notes.forEach((note) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = note.type;
+                oscillator.frequency.setValueAtTime(note.freq, startTime);
+
+                // Fade in/out scurt ca sa evitam un "click" la pornire/oprire.
+                gainNode.gain.setValueAtTime(0.0001, startTime);
+                gainNode.gain.linearRampToValueAtTime(gainStart, startTime + attack);
+                gainNode.gain.setValueAtTime(gainStart, startTime + pattern.totalDur - release);
+                gainNode.gain.linearRampToValueAtTime(0.0001, startTime + pattern.totalDur);
+
+                oscillator.start(startTime);
+                oscillator.stop(startTime + pattern.totalDur);
+            });
+        }
+
+        // Redă sunetul de alertă ales: continuu o singură dată, sau repetat de BEEP_COUNT ori.
+        function playAlertSound() {
+            const pattern = SOUND_PATTERNS[alertSound] || SOUND_PATTERNS.classic;
+
+            if (pattern.continuous) {
+                playContinuousPattern(pattern);
+                return;
+            }
+
+            for (let i = 0; i < BEEP_COUNT; i++) {
+                setTimeout(() => {
+                    playPattern();
+                }, i * pattern.repeatMs);
+            }
+        }
+        
+        // Testează sunetul
+        function testSound() {
+            console.log('🔊 Testare sunet...');
+            playAlertSound();
+        }
+        
+        // Verifică comenzi noi
+        async function checkOrders() {
+            try {
+                const response = await fetch(`${SERVER_URL}/api/orders?status=pending`);
+                const data = await response.json();
+                
+                const now = new Date().toLocaleTimeString('ro-RO');
+                document.getElementById('lastCheck').textContent = now;
+                
+                if (data.success) {
+                    const currentCount = data.data.orders.length;
+                    document.getElementById('orderCount').textContent = currentCount;
+                    
+                    console.log(`📊 Verificare: lastOrderCount=${lastOrderCount}, currentCount=${currentCount}`);
+                    
+                    // Dacă avem comenzi noi (și nu e prima verificare care setează counter-ul inițial)
+                    if (lastOrderCount !== null && currentCount > lastOrderCount) {
+                        const newOrders = currentCount - lastOrderCount;
+                        console.log(`🔔 COMANDĂ NOUĂ! (${newOrders} comenzi noi)`);
+                        
+                        // Redă sunetul
+                        playAlertSound();
+                        
+                        // Afișează notificare
+                        showNotification(`🔔 ${newOrders} COMANDĂ NOUĂ!`);
+                    }
+                    
+                    lastOrderCount = currentCount;
+                }
+            } catch (error) {
+                console.error('❌ Eroare la verificarea comenzilor:', error);
+                document.getElementById('lastCheck').textContent = 'Eroare de conexiune';
+            }
+        }
+        
+        // Afișează notificare pe ecran
+        function showNotification(message) {
+            // Elimină notificarea veche dacă există
+            const oldNotif = document.querySelector('.notification');
+            if (oldNotif) oldNotif.remove();
+            
+            // Creează notificare nouă
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            
+            // Ascunde după 10 secunde
+            setTimeout(() => {
+                notif.remove();
+            }, 10000);
+        }
+        
+        // Pornește/Oprește monitorizarea
+        function toggleMonitoring() {
+            isMonitoring = !isMonitoring;
+            
+            const statusDiv = document.getElementById('status');
+            const toggleBtn = document.getElementById('toggleBtn');
+            
+            if (isMonitoring) {
+                // Pornește monitorizarea
+                statusDiv.className = 'status active';
+                statusDiv.textContent = '✅ ACTIV - Monitorizare în curs...';
+                toggleBtn.textContent = '⏸️ OPREȘTE MONITORIZAREA';
+                
+                // Prima verificare
+                checkOrders();
+                
+                // Verificare periodică
+                intervalId = setInterval(checkOrders, CHECK_INTERVAL);
+                
+                console.log('✅ Monitorizare PORNITĂ');
+            } else {
+                // Oprește monitorizarea
+                statusDiv.className = 'status inactive';
+                statusDiv.textContent = '⏸️ Oprit - Click pentru a porni';
+                toggleBtn.textContent = '▶️ PORNEȘTE MONITORIZAREA';
+                
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                
+                console.log('⏸️ Monitorizare OPRITĂ');
+            }
+        }
+        
+        // NU pornim monitorizarea automat: browserele blochează sunetul
+        // (AudioContext) dacă nu e activat printr-un click direct al
+        // utilizatorului. De aceea butonul "PORNEȘTE MONITORIZAREA" trebuie
+        // apăsat manual - abia atunci garantăm că beep-urile se aud.
+
+        // Informații la încărcare
+        console.log('🔔 Sistem Alertă Comenzi - Încărcat');
+        console.log('📍 Server:', SERVER_URL);
+        console.log('⏱️ Interval verificare:', CHECK_INTERVAL / 1000, 'secunde');
+        console.log('🔊 Beep-uri per alertă:', BEEP_COUNT);
+        console.log('');
+        console.log('👉 Apasă butonul PORNEȘTE MONITORIZAREA pentru a activa alertele.');
+    </script>
+</body>
+</html>

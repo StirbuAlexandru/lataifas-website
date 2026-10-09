@@ -1,0 +1,521 @@
+'use client'
+
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ChefHat, Award, Users, Heart, Truck, Calendar, Briefcase, Wine, Gift, Sparkles, Building2, ChevronDown, ChevronUp } from 'lucide-react';
+import { getApiUrl } from '@/lib/api';
+
+export default function AboutPage() {
+  const [locationImages, setLocationImages] = useState<any[]>([]);
+  const [showAllImages, setShowAllImages] = useState(false);
+  const [showAllGalleryImages, setShowAllGalleryImages] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch location gallery images
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await fetch('/api/location-gallery');
+        const data = await response.json();
+        setLocationImages(data);
+      } catch (error) {
+        console.error('Error fetching location images:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchImages();
+  }, []);
+
+  const services = [
+    {
+      icon: Truck,
+      title: 'Livrare la domiciliu/sediu',
+      description: 'Orice produs din meniu (www.lataifas-suceava.ro)',
+    },
+    {
+      icon: Calendar,
+      title: 'Evenimente particulare',
+      description: 'Petreceri, aniversari (și un spațiu de joacă rezervat copiilor)',
+    },
+    {
+      icon: Briefcase,
+      title: 'Prânz la birou',
+      description: 'Comandă și ora livrări prestabilite',
+    },
+    {
+      icon: ChefHat,
+      title: 'Prânz de afaceri',
+      description: 'La restaurantul La Taifas',
+    },
+    {
+      icon: Users,
+      title: 'Platouri finger food',
+      description: 'Special pentru ședințe din timpul zilei și evenimente',
+    },
+    {
+      icon: Award,
+      title: 'Comenzi speciale',
+      description: 'La cererea clientului pe bază de precomandă',
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Hero Section - Clean & Elegant with Background Image */}
+      <section className="relative py-36 md:py-44 pt-28 md:pt-32 overflow-hidden min-h-[600px] md:min-h-[700px]">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/contact.jpg"
+            alt="La Taifas Background"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-full border-2 border-white/20 shadow-lg mb-4 animate-fadeInUp">
+            <Building2 className="h-5 w-5 text-white" />
+            <span className="text-sm font-bold text-white uppercase tracking-wider">Povestea Noastră</span>
+          </div>
+          
+          <div className="text-center">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-8 text-white drop-shadow-2xl animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+              Despre <span className="text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]">La Taifas</span>
+            </h1>
+            <div className="w-32 h-2 bg-gradient-to-r from-red-500 via-orange-500 to-red-500 mx-auto mb-10 rounded-full shadow-lg shadow-red-500/50"></div>
+            
+            <p className="text-xl md:text-2xl lg:text-3xl text-white font-semibold max-w-4xl mx-auto leading-relaxed drop-shadow-xl animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+              Locul unde foamea, setea sau grijile se sting la un taifas cu prietenii
+            </p>
+          </div>
+        </div>
+        
+        {/* Smooth Transition Wave */}
+        <div className="absolute bottom-0 left-0 right-0 h-16 md:h-20">
+          <svg className="absolute bottom-0 w-full h-full" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,0 C300,60 600,60 900,30 C1050,15 1125,0 1200,0 L1200,120 L0,120 Z" fill="#ffffff" opacity="0.9"/>
+            <path d="M0,20 C300,80 600,80 900,50 C1050,35 1125,20 1200,20 L1200,120 L0,120 Z" fill="#ffffff"/>
+          </svg>
+        </div>
+        
+        {/* White Shadow at Bottom - Oval Shape */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-radial from-transparent via-white/20 to-white/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-white/40 to-transparent"></div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-0 md:py-4">
+        {/* Despre Firmă Section - Modern */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-0 animate-fadeInUp">
+          <div className="bg-white p-4 rounded-xl">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-red-50 px-3 py-1.5 rounded-full border-2 border-red-100 mb-2">
+              <Heart className="h-4 w-4 text-red-600" />
+              <span className="text-xs font-semibold text-red-600 uppercase tracking-wide">Despre Firmă</span>
+            </div>
+            
+            <h2 className="text-3xl md:text-4xl font-bold mb-1 text-gray-900 text-center">
+              Povestea <span className="bg-gradient-to-r from-red-600 to-orange-500 text-transparent bg-clip-text">La Taifas</span>
+            </h2>
+            <div className="w-32 h-2 bg-gradient-to-r from-red-600 to-orange-500 mb-3 rounded-full mx-auto"></div>
+            
+            <div className="space-y-2 text-gray-700 leading-relaxed text-base">
+              <p>
+                <span className="font-bold text-red-600">La Taifas</span>, a fost locația noastră de suflet, creată cu gândul de a fi oferită celor care tânjeau în zona Burdujeniului după un loc în care să-i spună ACASĂ. Ulterior și la gândul bun al celor ce l-au privit cu drag, a luat acel ceva al locului și a căpătat caracteristici de restaurant fast-food cu terasă permanentă.
+              </p>
+              <p>
+                Loc de relaxare cu mâncare, degustări de vinuri și bere - loco și delivery, magazin de vinuri vrac și en-détail. Și pentru a se bucura toată lumea în momente deosebite oferim și spațiu pentru evenimente mici și de familie.
+              </p>
+              <p>
+                Noi vrem să-i mulțumim pe cei care vor să ne spună ACASĂ. Și ceva, numai al nostru, aici și în jur pe aiurea, magazin rafinat de vinuri pentru orice client cu pretenții. Și, buni și pricepuți anfitrioni, ghizi ai locației noastre, personalul atent e gajul calității noastre.
+              </p>
+            </div>
+          </div>
+          <div className="relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl group" style={{
+            border: '3px solid #fee2e2',
+            transition: 'all 0.5s ease-in-out'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 25px 50px rgba(191, 61, 61, 0.4)';
+            e.currentTarget.style.borderColor = '#ef4444';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '';
+            e.currentTarget.style.borderColor = '#fee2e2';
+          }}>
+            <Image
+              src="/images/desprenoi1.jpg"
+              alt="Restaurant La Taifas"
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-500"
+              priority
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
+        </div>
+
+        {/* Despre Restaurant Section - Modern */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 mb-20 md:mb-24 mt-16 md:mt-20 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+          <div className="order-2 lg:order-1 relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl group" style={{
+            border: '3px solid #fee2e2',
+            transition: 'all 0.5s ease-in-out'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 25px 50px rgba(191, 61, 61, 0.4)';
+            e.currentTarget.style.borderColor = '#ef4444';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '';
+            e.currentTarget.style.borderColor = '#fee2e2';
+          }}>
+            <Image
+              src="/images/desprenoi5.jpg"
+              alt="Preparate La Taifas"
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-500"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
+          <div className="order-1 lg:order-2">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-full border-2 border-orange-100 mb-4">
+              <ChefHat className="h-4 w-4 text-orange-600" />
+              <span className="text-xs font-semibold text-orange-600 uppercase tracking-wide">Despre Restaurant</span>
+            </div>
+            
+            <div className="text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
+                Bucătăria <span className="bg-gradient-to-r from-orange-600 to-red-600 text-transparent bg-clip-text">Noastră</span>
+              </h2>
+              <div className="w-32 h-2 bg-gradient-to-r from-orange-600 to-red-600 mb-6 rounded-full mx-auto"></div>
+            </div>
+            
+            <div className="space-y-4 text-gray-700 leading-relaxed text-lg">
+              <p>
+                La restaurantul fast-food din răscruce Burdujeniului preparate de bază sunt: <span className="font-semibold text-red-600">ciorbe, salate aperitive, preparate tradiționale, deserturi</span> inspirate, <span className="font-semibold text-red-600">paste și pizza</span>- ceva mai bune, poate, chiar și decât în bucătăriile italiene, <span className="font-semibold text-red-600">platouri</span> de moment dar și pentru evenimente, <span className="font-semibold text-red-600">grătare românești</span> dar și cu ștaif, chiar și <span className="font-semibold text-red-600">produse de post</span>.
+              </p>
+              <p>
+                Și cum, bucătarul e sufletul unui loc în care se oferă mâncare, ne mândrim, fără modestie, cu bucătarii noștri.
+              </p>
+            </div>
+            
+            {/* Stats Cards - Modern */}
+            <div className="mt-8 grid grid-cols-2 gap-4">
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl text-center border-2 border-orange-100 hover:border-orange-300 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-3 inline-flex mb-3">
+                  <ChefHat className="h-8 w-8 text-white" />
+                </div>
+                <p className="font-bold text-gray-900">Bucătari Profesioniști</p>
+              </div>
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl text-center border-2 border-orange-100 hover:border-orange-300 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-3 inline-flex mb-3">
+                  <Award className="h-8 w-8 text-white" />
+                </div>
+                <p className="font-bold text-gray-900">Ingrediente Proaspete</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Locația Noastră Section - Modern */}
+        <div className="mb-20 md:mb-24 animate-fadeInUp" style={{ animationDelay: '0.3s' }} id="universul-la-taifas">
+          {/* Badge - Left Aligned */}
+          <div className="inline-flex items-center gap-2 bg-red-50 px-3 py-1.5 rounded-full border-2 border-red-100 mb-4">
+            <Sparkles className="h-4 w-4 text-red-600" />
+            <span className="text-xs font-semibold text-red-600 uppercase tracking-wide">Locația Noastră</span>
+          </div>
+          
+          {/* Title - Centered */}
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Universul <span className="bg-gradient-to-r from-red-600 to-orange-500 text-transparent bg-clip-text">La Taifas</span>
+            </h2>
+            <div className="w-20 h-1.5 bg-gradient-to-r from-red-600 to-orange-500 mx-auto rounded-full mb-12"></div>
+          </div>
+          
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="text-gray-600">Se încarcă imaginile...</div>
+            </div>
+          ) : (
+            <>
+              <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 ${showAllImages ? 'animate-slideDown' : ''}`}>
+                {locationImages.slice(0, showAllImages ? locationImages.length : 4).map((image, index) => (
+                  <div key={image.id} className="relative h-[250px] md:h-[300px] rounded-2xl overflow-hidden shadow-lg group hover:shadow-2xl transition-all duration-500" style={{
+                    border: '2px solid #fee2e2',
+                    transition: 'all 0.5s ease-in-out'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 20px 40px rgba(191, 61, 61, 0.3)';
+                    e.currentTarget.style.borderColor = '#ef4444';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '';
+                    e.currentTarget.style.borderColor = '#fee2e2';
+                  }}>
+                    <Image 
+                      src={image.image_url} 
+                      alt={image.alt_text || `Locație ${image.id}`} 
+                      fill 
+                      className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      priority={index === 0}
+                      loading={index === 0 ? undefined : 'lazy'}
+                    />
+                  </div>
+                ))}
+              </div>
+              
+              {locationImages.length > 4 && (
+                <div className="flex justify-center mt-8">
+                  <Button
+                    onClick={() => {
+                      if (showAllImages) {
+                        const element = document.getElementById('universul-la-taifas');
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                      }
+                      setShowAllImages(!showAllImages);
+                    }}
+                    size="lg"
+                    className="gap-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 px-8 py-6 text-base font-semibold rounded-xl"
+                  >
+                    {showAllImages ? (
+                      <>
+                        <ChevronUp className="h-5 w-5" />
+                        Mai Puține Imagini
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="h-5 w-5" />
+                        Mai Multe Imagini
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Partenerii Noștri Section */}
+        <div className="mb-20 md:mb-24 animate-fadeInUp" style={{ animationDelay: '0.45s' }}>
+          <div className="max-w-4xl mx-auto">
+            <Card className="border-2 border-red-200 bg-gradient-to-br from-white to-red-50/30 shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300">
+              <CardContent className="p-10 md:p-12 text-center relative">
+                {/* Decorative corner elements */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/5 to-transparent rounded-bl-full"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-orange-500/5 to-transparent rounded-tr-full"></div>
+                
+                <div className="relative z-10">
+                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-orange-500 px-5 py-2.5 rounded-full mb-6 shadow-md">
+                    <Award className="h-5 w-5 text-white" />
+                    <span className="text-sm font-bold text-white uppercase tracking-wide">Partenerii Noștri</span>
+                  </div>
+                  
+                  <h3 className="text-3xl md:text-4xl font-bold mb-6">
+                    Colaborăm cu <span className="bg-gradient-to-r from-red-600 to-orange-500 text-transparent bg-clip-text">Cei Mai Buni</span>
+                  </h3>
+                  
+                  <div className="w-24 h-1 bg-gradient-to-r from-red-600 to-orange-500 mx-auto rounded-full mb-8"></div>
+                  
+                  <p className="text-gray-600 text-base md:text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
+                    Partenerii noștri de încredere care ne ajută să vă oferim produse și servicii de calitate superioară
+                  </p>
+                  
+                  <div className="relative">
+                    {/* Decorative glow effect */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-red-600 via-orange-500 to-red-600 rounded-3xl md:rounded-full blur-xl opacity-20"></div>
+                    
+                    {/* Mobile: Grid 2x3, Desktop: Horizontal Row */}
+                    <div className="relative">
+                      {/* Mobile Grid */}
+                      <div className="md:hidden grid grid-cols-2 gap-6 bg-gradient-to-br from-white via-red-50/30 to-orange-50/30 backdrop-blur-sm rounded-3xl px-8 py-10 shadow-xl border-2 border-white/50">
+                        <div className="flex items-center justify-center transition-all duration-300 transform hover:scale-110">
+                          <Image src="/images/tuborg.png" alt="Tuborg" width={70} height={35} className="object-contain drop-shadow-md" />
+                        </div>
+                        <div className="flex items-center justify-center transition-all duration-300 transform hover:scale-110">
+                          <Image src="/images/Domeniile_Bohotin.png" alt="Domeniile Bohotin" width={90} height={45} className="object-contain drop-shadow-md" />
+                        </div>
+                        <div className="flex items-center justify-center transition-all duration-300 transform hover:scale-110">
+                          <Image src="/images/bermas.png" alt="Bermas" width={90} height={45} className="object-contain drop-shadow-md" />
+                        </div>
+                        <div className="flex items-center justify-center transition-all duration-300 transform hover:scale-110">
+                          <Image src="/images/illy.png" alt="Illy" width={90} height={45} className="object-contain drop-shadow-md" />
+                        </div>
+                        <div className="col-span-2 flex items-center justify-center transition-all duration-300 transform hover:scale-110">
+                          <Image src="/images/cola.png" alt="Coca Cola" width={160} height={80} className="object-contain drop-shadow-md" />
+                        </div>
+                      </div>
+                      
+                      {/* Desktop Horizontal */}
+                      <div className="hidden md:flex items-center justify-center gap-8 bg-gradient-to-br from-white via-red-50/30 to-orange-50/30 backdrop-blur-sm rounded-full px-10 py-6 shadow-xl border-2 border-white/50">
+                        <div className="transition-all duration-300 transform hover:scale-110 hover:-translate-y-1">
+                          <Image src="/images/tuborg.png" alt="Tuborg" width={100} height={50} className="object-contain drop-shadow-md" />
+                        </div>
+                        <div className="h-20 w-0.5 bg-gradient-to-b from-transparent via-red-400 to-transparent"></div>
+                        <div className="transition-all duration-300 transform hover:scale-110 hover:-translate-y-1">
+                          <Image src="/images/Domeniile_Bohotin.png" alt="Domeniile Bohotin" width={100} height={50} className="object-contain drop-shadow-md" />
+                        </div>
+                        <div className="h-20 w-0.5 bg-gradient-to-b from-transparent via-red-400 to-transparent"></div>
+                        <div className="transition-all duration-300 transform hover:scale-110 hover:-translate-y-1">
+                          <Image src="/images/bermas.png" alt="Bermas" width={100} height={50} className="object-contain drop-shadow-md" />
+                        </div>
+                        <div className="h-20 w-0.5 bg-gradient-to-b from-transparent via-red-400 to-transparent"></div>
+                        <div className="transition-all duration-300 transform hover:scale-110 hover:-translate-y-1">
+                          <Image src="/images/illy.png" alt="Illy" width={100} height={50} className="object-contain drop-shadow-md" />
+                        </div>
+                        <div className="h-20 w-0.5 bg-gradient-to-b from-transparent via-red-400 to-transparent"></div>
+                        <div className="transition-all duration-300 transform hover:scale-110 hover:-translate-y-1">
+                          <Image src="/images/cola.png" alt="Coca Cola" width={240} height={120} className="object-contain drop-shadow-md" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Alte Servicii Section - Modern */}
+        <div className="mb-20 md:mb-24 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+          {/* Badge - Left Aligned */}
+          <div className="inline-flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-full border-2 border-orange-100 mb-4">
+            <Gift className="h-4 w-4 text-orange-600" />
+            <span className="text-xs font-semibold text-orange-600 uppercase tracking-wide">Alte Servicii</span>
+          </div>
+          
+          {/* Title and Description - Centered */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Serviciile <span className="bg-gradient-to-r from-orange-600 to-red-600 text-transparent bg-clip-text">oferite de noi</span>
+            </h2>
+            <div className="w-20 h-1.5 bg-gradient-to-r from-orange-600 to-red-600 mx-auto mb-4 rounded-full"></div>
+            <p className="text-gray-600 text-lg max-w-3xl mx-auto">
+              Oferim o gamă largă de servicii pentru a satisface toate nevoile tale culinare
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+            {services.map((service, index) => {
+              const IconComponent = service.icon;
+              return (
+                <Card key={index} className="border-2 border-red-100 hover:border-red-300 bg-white hover:shadow-xl transition-all duration-300 hover:scale-105 rounded-xl overflow-hidden group">
+                  <CardContent className="p-5 md:p-6 text-center">
+                    <div className="bg-gradient-to-br from-red-500 to-red-600 w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                      <IconComponent className="h-6 w-6 md:h-7 md:w-7 text-white" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-2 text-base md:text-lg">{service.title}</h3>
+                    <p className="text-gray-600 text-sm md:text-base">{service.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Gallery Section - Modern */}
+        <div className="mb-16 md:mb-20 animate-fadeInUp" style={{ animationDelay: '0.5s' }} id="galeria-la-taifas">
+          {/* Badge - Left Aligned */}
+          <div className="inline-flex items-center gap-2 bg-red-50 px-3 py-1.5 rounded-full border-2 border-red-100 mb-4">
+            <Wine className="h-4 w-4 text-red-600" />
+            <span className="text-xs font-semibold text-red-600 uppercase tracking-wide">Galeria Noastră</span>
+          </div>
+          
+          {/* Title - Centered */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Galerie <span className="bg-gradient-to-r from-red-600 to-orange-500 text-transparent bg-clip-text">LaTaifas</span>
+            </h2>
+            <div className="w-20 h-1.5 bg-gradient-to-r from-red-600 to-orange-500 mx-auto rounded-full"></div>
+          </div>
+          
+          {/* Gallery Grid with Smooth Animation */}
+          <div className="overflow-hidden">
+            <div 
+              className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-1000 ease-in-out ${
+                showAllGalleryImages ? 'opacity-100' : ''
+              }`}
+              style={{
+                maxHeight: showAllGalleryImages ? '3000px' : '650px',
+                transition: 'max-height 1s ease-in-out, opacity 0.8s ease-in-out'
+              }}
+            >
+              {['galerie1', 'galerie2', 'galerie3', 'galerie4', 'galerie5', 'galerie6', 'galerie7', 'galerie8', 'desprenoi2', 'desprenoi3', 'desprenoi4', 'desprenoi6'].slice(0, showAllGalleryImages ? 12 : 4).map((img, index) => (
+                <div 
+                  key={index} 
+                  className={`relative h-[250px] md:h-[300px] rounded-2xl overflow-hidden shadow-lg group hover:shadow-2xl transition-all duration-700 ${
+                    index >= 4 && !showAllGalleryImages ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                  }`}
+                  style={{
+                    border: '2px solid #fee2e2',
+                    transition: 'all 0.8s ease-in-out, opacity 0.8s ease-in-out, transform 0.8s ease-in-out',
+                    transitionDelay: showAllGalleryImages && index >= 4 ? `${(index - 4) * 0.1}s` : '0s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 20px 40px rgba(191, 61, 61, 0.3)';
+                    e.currentTarget.style.borderColor = '#ef4444';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '';
+                    e.currentTarget.style.borderColor = '#fee2e2';
+                  }}
+                >
+                  <Image 
+                    src={`/images/${img}.jpg`} 
+                    alt={`Galerie ${index + 1}`} 
+                    fill 
+                    className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    loading={index < 4 ? 'eager' : 'lazy'}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Toggle Button */}
+          <div className="flex justify-center mt-6">
+            <Button
+              onClick={() => {
+                if (showAllGalleryImages) {
+                  const element = document.getElementById('galeria-la-taifas');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }
+                setShowAllGalleryImages(!showAllGalleryImages);
+              }}
+              size="lg"
+              className="gap-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 px-8 py-6 text-base font-semibold rounded-xl"
+            >
+              {showAllGalleryImages ? (
+                <>
+                  <ChevronUp className="h-5 w-5" />
+                  Mai Puține Imagini
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-5 w-5" />
+                  Mai Multe Imagini
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
